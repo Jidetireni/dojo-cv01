@@ -1,0 +1,94 @@
+include:
+  - compose.monitoring.yml
+services:  
+  frontend:  
+    # image: frontend  
+    container_name: frontend
+    build:  
+      context: ./frontend  
+      dockerfile: ./Dockerfile  
+    ports:  
+      - "5173:5173"  
+    depends_on:  
+      - backend  
+    env_file:
+      - frontend/.env  
+    networks:  
+      - network  
+
+  backend:  
+    # image: backend  
+    container_name: backend
+    build:  
+      context: ./backend  
+      dockerfile: ./Dockerfile  
+    ports:  
+      - "8000:8000"  
+    networks:  
+      - network  
+    env_file:
+      - backend/.env 
+    depends_on:  
+      - postgres  
+
+  postgres:  
+    image: postgres  
+    container_name: postgres-db  
+    restart: unless-stopped  
+    environment:  
+      - POSTGRES_USER=${POSTGRES_USER}  
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}  
+      - POSTGRES_DB=${POSTGRES_DB}  
+    ports:  
+      - "5432:5432"  
+    networks:  
+      - network  
+
+  adminer:  
+    image: adminer:latest  
+    container_name: adminer  
+    restart: unless-stopped  
+    ports:  
+      - "8081:8080"  
+    environment:  
+      - ADMINER_DEFAULT_SERVER=postgres-db  
+    depends_on:  
+      - postgres  
+    networks:  
+      - network
+
+  proxy:
+    image: 'jc21/nginx-proxy-manager:2.10.4'
+    container_name: proxy
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    environment:
+      DB_MYSQL_HOST: "proxy-db"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      DB_MYSQL_PASSWORD: "npm"
+      DB_MYSQL_NAME: "npm"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - network
+
+  proxy-db:
+    image: 'jc21/mariadb-aria:latest'
+    container_name: proxy-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - network
+
+networks:
+  network:
+    external: true
