@@ -1,6 +1,6 @@
 # Dojo01  
 
-This repository contains the complete setup and configuration for deploying a 3-tier application (React frontend, FastAPI backend, PostgreSQL database) with a monitoring stack using Prometheus, Grafana, Loki, Promtail, and cAdvisor. This project was developed as part of the **DevOps Dojo CV Challenge**.  
+This repository contains the complete setup and configuration for deploying a 3-tier application (React frontend, FastAPI backend, PostgreSQL database) with a monitoring stack using Prometheus, Grafana, Loki, Promtail, and cAdvisor.  
 
 ---  
 
